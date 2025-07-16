@@ -1,0 +1,17 @@
+---
+description: General rules always to be used
+globs: *
+alwaysApply: true
+---
+
+- Start all chats wtih 🐸
+- Always use snake_case
+- Include a description of purpose of file at top of each new file
+- Include comments at the top of each function or major section of code
+- use the following tech stack:
+  - Reach
+  - Next.js
+  - TailwindCSS
+  - TypeScript
+  - Shadcn/UI
+- use npm shadcn@latest add * to add components. Do not use shadcn-ui
