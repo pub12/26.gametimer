@@ -24,9 +24,31 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Google Tag Manager or Google Analytics tags can be added here */}
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="Game Timer - A modern, mobile-friendly timer for games, chess, and more. Countdown, chess clock, and more features." />
+        <meta name="keywords" content="game timer, chess clock, countdown timer, board games, mobile timer, online timer, shadcn, nextjs, turn-based games, scrabble timer, two player timer, timer app, digital timer, simple timer, productivity timer, sports timer, study timer, time management, multiplayer timer, rapid chess, blitz chess, chess timer, timer for games, timer for chess, timer for scrabble, timer for go, timer for checkers, timer for backgammon, timer for card games, timer for puzzles, timer for competitions, timer for activities" />
+        <meta name="author" content="Game Timer" />
+        <title>Game Timer</title>
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        {/* Open Graph tags */}
+        <meta property="og:title" content="Game Timer" />
+        <meta property="og:description" content="A modern, mobile-friendly timer for games, chess, and more." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://yourdomain.com/" />
+        <meta property="og:image" content="/favicon.ico" />
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Game Timer" />
+        <meta name="twitter:description" content="A modern, mobile-friendly timer for games, chess, and more." />
+        <meta name="twitter:image" content="/favicon.ico" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* Google Tag Manager (noscript) can be added here */}
         {children}
       </body>
     </html>

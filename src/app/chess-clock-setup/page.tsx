@@ -1,5 +1,5 @@
 "use client";
-// Purpose: Countdown setup page for the Game Timer app. Allows user to configure timer and start countdown.
+// Purpose: Chess Clock setup page for the Game Timer app. Allows user to select total timer duration for chess clock.
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -10,22 +10,14 @@ import Header from "../../components/header";
 import Footer from "../../components/footer";
 
 /**
- * countdown_setup_page component displays the large card for timer configuration.
+ * chess_clock_setup_page component displays the card for chess clock timer configuration.
  */
-export default function countdown_setup_page() {
+export default function chess_clock_setup_page() {
   // State for selected time (in seconds)
-  const [timer_value, set_timer_value] = useState(60); // default 60 seconds
-  const router = useRouter();
+  const [timer_value, set_timer_value] = useState(300); // default 5 minutes
 
   // Preset values in seconds
-  const presets = [10, 15, 30, 60];
-
-  // Handle start button click
-  const handle_start = () => {
-    if (timer_value > 0) {
-      router.push(`/countdown?time=${timer_value}`);
-    }
-  };
+  const presets = [120, 300, 600, 1200, 1800, 3600];
 
   // Format time as mm:ss
   const format_time = (secs: number) => {
@@ -34,17 +26,25 @@ export default function countdown_setup_page() {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
+  const router = useRouter();
+
+  // Handle start button click
+  const handle_start = () => {
+    router.push(`/chess-clock?time=${timer_value}`);
+  };
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 pt-20">
       {/* Header */}
       <Header />
       {/* Navbar */}
       <Navbar />
-      {/* Large Countdown Setup Card */}
+      {/* Chess Clock Setup Card */}
       <div className="w-full max-w-2xl mb-8 flex items-center justify-center">
         <Card className="shadow-2xl w-full p-0 rounded-3xl">
           <CardContent className="flex flex-col items-center justify-center p-12 md:p-20">
-            <span className="text-4xl md:text-6xl font-bold mb-6">Countdown</span>
+            <span className="text-4xl md:text-6xl font-bold mb-6">Chess Clock</span>
+            <span className="mb-4 text-lg md:text-2xl">Select total timer duration</span>
             {/* Preset Buttons */}
             <div className="flex flex-wrap gap-4 mb-4 w-full justify-center">
               {presets.map((val) => (
@@ -63,7 +63,7 @@ export default function countdown_setup_page() {
               <span className="mb-2 text-2xl">Set Time</span>
               <input
                 type="range"
-                min={1}
+                min={10}
                 max={3600}
                 value={timer_value}
                 onChange={e => set_timer_value(Number(e.target.value))}

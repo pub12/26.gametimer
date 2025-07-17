@@ -4,17 +4,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "../../components/ui/button";
-
-/**
- * Navbar component for the Game Timer app.
- */
-function navbar() {
-  return (
-    <nav className="w-full bg-white shadow-sm py-4 px-6 flex items-center justify-center fixed top-0 left-0 z-10">
-      <span className="text-2xl md:text-3xl font-bold text-gray-900">Game Timer</span>
-    </nav>
-  );
-}
+import { Volume2, VolumeX } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Navbar from "../../components/navbar";
+import Header from "../../components/header";
+import Footer from "../../components/footer";
 
 /**
  * countdown_page component displays a live countdown timer based on the time query parameter.
@@ -26,12 +20,34 @@ export default function countdown_page() {
   const initial_time = Number(search_params.get("time")) || 0;
   const [remaining, set_remaining] = useState(initial_time);
   const [running, set_running] = useState(true);
+  const [audio_enabled, set_audio_enabled] = useState(false);
   const prev_remaining = useRef(remaining);
+  const audio_context_ref = useRef<AudioContext | null>(null);
+
+  // Toggle audio context and enabled state
+  const toggle_audio = () => {
+    if (!audio_enabled) {
+      try {
+        if (!audio_context_ref.current) {
+          audio_context_ref.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        }
+        set_audio_enabled(true);
+      } catch (e) {
+        console.log("Audio not supported:", e);
+      }
+    } else {
+      set_audio_enabled(false);
+    }
+  };
 
   // Play beep using Web Audio API
   const play_beep = (duration = 0.15, frequency = 880) => {
+    if (!audio_enabled || !audio_context_ref.current) return;
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const ctx = audio_context_ref.current;
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
       const oscillator = ctx.createOscillator();
       const gain = ctx.createGain();
       oscillator.type = "sine";
@@ -41,9 +57,8 @@ export default function countdown_page() {
       gain.connect(ctx.destination);
       oscillator.start();
       oscillator.stop(ctx.currentTime + duration);
-      oscillator.onended = () => ctx.close();
     } catch (e) {
-      // Ignore errors (e.g., autoplay restrictions)
+      console.log("Beep failed:", e);
     }
   };
 
@@ -66,8 +81,9 @@ export default function countdown_page() {
     ) {
       play_beep(); // short beep
     }
+    // At zero: higher tone and longer beep
     if (running && remaining === 0 && prev_remaining.current !== 0) {
-      play_beep(0.7, 660); // longer, lower beep at 0
+      play_beep(1.2, 1200); // longer, higher beep at 0
     }
     prev_remaining.current = remaining;
   }, [remaining, running]);
@@ -80,36 +96,61 @@ export default function countdown_page() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 pt-20">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-2 pt-20 w-full overflow-x-hidden">
+      {/* Header */}
+      <Header />
       {/* Navbar */}
-      {navbar()}
-      <h1 className="text-4xl md:text-6xl font-bold mb-10 text-center text-gray-900">
+      <Navbar />
+      <h1 className="text-2xl md:text-5xl font-bold mb-6 text-center text-gray-900">
         Countdown
       </h1>
-      <div className="flex flex-col items-center gap-16">
-        {/* Even larger timer display */}
-        <span className="text-[10rem] md:text-[20rem] font-mono font-bold tracking-widest select-none leading-none">
+      <div className="flex flex-col items-center gap-10 w-full max-w-md mx-auto">
+        {/* Sound Toggle Icon Button */}
+        <button
+          aria-label={audio_enabled ? "Disable Sound" : "Enable Sound"}
+          onClick={toggle_audio}
+          className={`mb-2 rounded-full ${audio_enabled ? "bg-blue-100 hover:bg-blue-200" : "bg-gray-200 hover:bg-gray-300"} p-4 flex items-center justify-center shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400`}
+          style={{ fontSize: 40 }}
+        >
+          {audio_enabled ? (
+            <Volume2 className="text-blue-600" size={40} />
+          ) : (
+            <VolumeX className="text-gray-500" size={40} />
+          )}
+        </button>
+        {/* Responsive timer display */}
+        <span
+          className="font-mono font-bold tracking-widest select-none leading-none w-full text-center"
+          style={{
+            fontSize: "clamp(3rem, 25vw, 10rem)",
+            wordBreak: "break-all",
+            lineHeight: 1.1,
+            display: "block",
+          }}
+        >
           {format_time(remaining)}
         </span>
-        {/* Buttons: Reset above Pause/Resume, both extremely large */}
-        <div className="flex flex-col gap-12 items-center w-full max-w-lg">
+        {/* Responsive Buttons: Reset above Pause/Resume */}
+        <div className="flex flex-col gap-6 items-center w-full">
           <Button
             onClick={() => set_remaining(initial_time)}
             disabled={remaining === initial_time}
-            className="text-white bg-red-600 hover:bg-red-700 focus:bg-red-800 text-4xl md:text-6xl px-20 py-16 rounded-3xl shadow-2xl w-full disabled:opacity-60 font-bold"
-            style={{ fontWeight: 700 }}
+            className="text-white bg-red-600 hover:bg-red-700 focus:bg-red-800 text-2xl md:text-4xl px-0 py-8 rounded-2xl shadow-2xl w-full max-w-full disabled:opacity-60 font-bold"
+            style={{ minHeight: "6rem" }}
           >
             Reset
           </Button>
           <Button
             onClick={() => set_running(!running)}
-            className="text-white bg-orange-500 hover:bg-orange-600 focus:bg-orange-700 text-4xl md:text-6xl px-20 py-16 rounded-3xl shadow-2xl w-full font-bold"
-            style={{ fontWeight: 700 }}
+            className="text-white bg-orange-500 hover:bg-orange-600 focus:bg-orange-700 text-2xl md:text-4xl px-0 py-8 rounded-2xl shadow-2xl w-full max-w-full font-bold"
+            style={{ minHeight: "6rem" }}
           >
             {running ? "Pause" : "Resume"}
           </Button>
         </div>
       </div>
+      {/* Footer */}
+      <Footer />
     </main>
   );
 } 
