@@ -5,7 +5,7 @@ import React from "react";
 /**
  * header component for the Game Timer app. Currently empty, but can be extended for navigation or branding.
  */
-export default function header() {
+export default function Header() {
   return (
     <header className="w-full"></header>
   );

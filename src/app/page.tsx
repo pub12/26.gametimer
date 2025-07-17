@@ -10,7 +10,7 @@ import Footer from "../components/footer";
 /**
  * home_page component displays the main entry with a large Countdown button.
  */
-export default function home_page() {
+export default function HomePage() {
   const router = useRouter();
 
   // Handle navigation to countdown setup

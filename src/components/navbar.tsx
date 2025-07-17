@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 /**
  * navbar component displays a fixed navbar with the app title as a link to the homepage.
  */
-export default function navbar() {
+export default function Navbar() {
   const router = useRouter();
   return (
     <nav className="w-full bg-white shadow-sm py-4 px-6 flex items-center justify-center fixed top-0 left-0 z-10">

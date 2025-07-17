@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,23 +45,19 @@ export default function RootLayout({
         <meta name="twitter:title" content="Game Timer" />
         <meta name="twitter:description" content="A modern, mobile-friendly timer for games, chess, and more." />
         <meta name="twitter:image" content="/favicon.ico" />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-CBY26RF5JD" strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-CBY26RF5JD');
+          `}
+        </Script>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Google Tag Manager (noscript) can be added here */}
-        { /*<!-- Google tag (gtag.js) -->*/ }
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-CBY26RF5JD"></script>
-        <script
-                dangerouslySetInnerHTML={{
-                  __html: `
-                    window.dataLayer = window.dataLayer || [];
-                    function gtag(){dataLayer.push(arguments);}
-                    gtag('js', new Date());
-                    gtag('config', 'G-CBY26RF5JD');
-                  `
-                }}
-              />
         {children}
       </body>
     </html>

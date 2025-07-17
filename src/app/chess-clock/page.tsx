@@ -1,7 +1,7 @@
 "use client";
 // Purpose: Chess Clock page for the Game Timer app. Displays two player clocks, active/inactive states, and a pause button.
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, ChangeEvent, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/navbar";
 import Header from "../../components/header";
@@ -12,7 +12,7 @@ import { Volume2, VolumeX } from "lucide-react";
 /**
  * chess_clock_page component displays two player clocks, active/inactive states, and a pause button.
  */
-export default function chess_clock_page() {
+function ChessClockPageContent() {
   // Get initial time from query params (in seconds)
   const search_params = useSearchParams();
   const initial_time = Number(search_params.get("time")) || 300;
@@ -28,7 +28,8 @@ export default function chess_clock_page() {
   const play_beep = (duration = 0.15, frequency = 880) => {
     if (!sound_on) return;
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      const ctx = new AudioCtx();
       const oscillator = ctx.createOscillator();
       const gain = ctx.createGain();
       oscillator.type = "sine";
@@ -39,7 +40,7 @@ export default function chess_clock_page() {
       oscillator.start();
       oscillator.stop(ctx.currentTime + duration);
       oscillator.onended = () => ctx.close();
-    } catch (e) {
+    } catch {
       // Ignore errors
     }
   };
@@ -126,7 +127,7 @@ export default function chess_clock_page() {
               <input
                 type="text"
                 value={player_names[player]}
-                onChange={e => {
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   const new_names = [...player_names];
                   new_names[player] = e.target.value;
                   set_player_names(new_names);
@@ -160,5 +161,13 @@ export default function chess_clock_page() {
       </div>
       <Footer />
     </main>
+  );
+}
+
+export default function ChessClockPage() {
+  return (
+    <Suspense>
+      <ChessClockPageContent />
+    </Suspense>
   );
 } 

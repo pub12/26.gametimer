@@ -1,11 +1,10 @@
 "use client";
 // Purpose: Countdown page for the Game Timer app. Reads time from query and displays a live countdown timer.
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "../../components/ui/button";
 import { Volume2, VolumeX } from "lucide-react";
-import { useRouter } from "next/navigation";
 import Navbar from "../../components/navbar";
 import Header from "../../components/header";
 import Footer from "../../components/footer";
@@ -14,7 +13,7 @@ import Footer from "../../components/footer";
  * countdown_page component displays a live countdown timer based on the time query parameter.
  * Plays a beep sound for each of the last 10 seconds and a longer beep at 0.
  */
-export default function countdown_page() {
+function CountdownPageContent() {
   // Get time from query params (in seconds)
   const search_params = useSearchParams();
   const initial_time = Number(search_params.get("time")) || 0;
@@ -29,7 +28,7 @@ export default function countdown_page() {
     if (!audio_enabled) {
       try {
         if (!audio_context_ref.current) {
-          audio_context_ref.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+          audio_context_ref.current = new (window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext })?.webkitAudioContext)();
         }
         set_audio_enabled(true);
       } catch (e) {
@@ -40,11 +39,11 @@ export default function countdown_page() {
     }
   };
 
-  // Play beep using Web Audio API
-  const play_beep = (duration = 0.15, frequency = 880) => {
+  // Move play_beep outside useEffect and wrap in useCallback
+  const play_beep = useCallback((duration = 0.15, frequency = 880) => {
     if (!audio_enabled || !audio_context_ref.current) return;
     try {
-      const ctx = audio_context_ref.current;
+      const ctx = audio_context_ref.current as AudioContext;
       if (ctx.state === 'suspended') {
         ctx.resume();
       }
@@ -57,10 +56,10 @@ export default function countdown_page() {
       gain.connect(ctx.destination);
       oscillator.start();
       oscillator.stop(ctx.currentTime + duration);
-    } catch (e) {
-      console.log("Beep failed:", e);
+    } catch {
+      // Ignore errors
     }
-  };
+  }, [audio_enabled, audio_context_ref]);
 
   // Countdown effect
   useEffect(() => {
@@ -71,7 +70,7 @@ export default function countdown_page() {
     return () => clearInterval(interval);
   }, [running, remaining]);
 
-  // Beep for last 10 seconds and longer beep at 0
+  // Fix exhaustive-deps warning by moving play_beep inside useEffect
   useEffect(() => {
     if (
       running &&
@@ -81,12 +80,11 @@ export default function countdown_page() {
     ) {
       play_beep(); // short beep
     }
-    // At zero: higher tone and longer beep
     if (running && remaining === 0 && prev_remaining.current !== 0) {
       play_beep(1.2, 1200); // longer, higher beep at 0
     }
     prev_remaining.current = remaining;
-  }, [remaining, running]);
+  }, [remaining, running, play_beep]);
 
   // Format time as mm:ss
   const format_time = (secs: number) => {
@@ -152,5 +150,13 @@ export default function countdown_page() {
       {/* Footer */}
       <Footer />
     </main>
+  );
+}
+
+export default function CountdownPageWrapper() {
+  return (
+    <Suspense>
+      <CountdownPageContent />
+    </Suspense>
   );
 } 

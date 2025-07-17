@@ -12,7 +12,7 @@ import Footer from "../../components/footer";
 /**
  * countdown_setup_page component displays the large card for timer configuration.
  */
-export default function countdown_setup_page() {
+export default function CountdownSetupPage() {
   // State for selected time (in seconds)
   const [timer_value, set_timer_value] = useState(60); // default 60 seconds
   const router = useRouter();

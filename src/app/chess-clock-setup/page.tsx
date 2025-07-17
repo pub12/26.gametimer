@@ -12,7 +12,7 @@ import Footer from "../../components/footer";
 /**
  * chess_clock_setup_page component displays the card for chess clock timer configuration.
  */
-export default function chess_clock_setup_page() {
+export default function ChessClockSetupPage() {
   // State for selected time (in seconds)
   const [timer_value, set_timer_value] = useState(300); // default 5 minutes
 

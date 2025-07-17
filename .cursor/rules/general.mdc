@@ -8,6 +8,8 @@ alwaysApply: true
 - Always use snake_case
 - Include a description of purpose of file at top of each new file
 - Include comments at the top of each function or major section of code
+- If you're not more than 90% sure of what to implement, please ask questions
+- For each prompt, give a summary of things that were done and not done (with explanations)
 - use the following tech stack:
   - Reach
   - Next.js
